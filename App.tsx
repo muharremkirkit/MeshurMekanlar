@@ -14,6 +14,7 @@ import CartModal from './components/CartModal';
 import { MenuItem, CategoryItem, SiteSettings, AdminUser, CartItem } from './types';
 import { MENU_ITEMS, CATEGORY_ICONS } from './constants';
 import { dataService } from './services/dataService';
+import { AlertTriangle } from 'lucide-react';
 
 function App() {
   const [activePage, setActivePage] = useState('home');
@@ -21,6 +22,7 @@ function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isKeyMissing, setIsKeyMissing] = useState(false);
   
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [categories, setCategories] = useState<CategoryItem[]>([]);
@@ -64,10 +66,16 @@ function App() {
     testimonials: []
   });
 
-  // Veri Yükleme Operasyonu (SaaS Hazırlığı)
   useEffect(() => {
     const initApp = async () => {
       setIsLoading(true);
+      
+      // API Key kontrolü - process.env kullanılır
+      const apiKey = process.env.API_KEY;
+      if (!apiKey || apiKey === "undefined" || apiKey === "") {
+        setIsKeyMissing(true);
+      }
+
       try {
         const [savedMenu, savedCats, savedSettings, savedAdmins] = await Promise.all([
           dataService.getMenuItems(),
@@ -76,9 +84,9 @@ function App() {
           dataService.getAdmins()
         ]);
 
-        if (savedMenu.length) setMenuItems(savedMenu); else setMenuItems(MENU_ITEMS);
+        if (savedMenu && savedMenu.length) setMenuItems(savedMenu); else setMenuItems(MENU_ITEMS);
         
-        if (savedCats.length) setCategories(savedCats);
+        if (savedCats && savedCats.length) setCategories(savedCats);
         else {
           const defaultCats = Object.entries(CATEGORY_ICONS).map(([name, icon], idx) => ({
             id: idx.toString(), name, icon
@@ -86,12 +94,12 @@ function App() {
           setCategories(defaultCats);
         }
 
-        if (savedAdmins.length) setAdminUsers(savedAdmins);
+        if (savedAdmins && savedAdmins.length) setAdminUsers(savedAdmins);
         else setAdminUsers([{ id: '1', username: 'admin', email: 'admin@admin.com', password: 'admin', role: 'super' }]);
 
         if (savedSettings) setSettings(prev => ({...prev, ...savedSettings}));
       } catch (e) {
-        console.error("Başlatma hatası:", e);
+        console.error("Uygulama yükleme hatası:", e);
       } finally {
         setIsLoading(false);
       }
@@ -99,7 +107,6 @@ function App() {
     initApp();
   }, []);
 
-  // Veri Kaydetme (Dinamik)
   useEffect(() => {
     if (!isLoading) {
       dataService.saveMenuItems(menuItems);
@@ -132,7 +139,7 @@ function App() {
     return (
       <div className="h-screen w-full flex flex-col items-center justify-center bg-slate-900 text-white">
         <div className="w-16 h-16 border-4 border-brand border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p className="text-xl font-serif font-bold animate-pulse">Lezzetler Hazırlanıyor...</p>
+        <p className="text-xl font-serif font-bold">Lezzet Kapıları Açılıyor...</p>
       </div>
     );
   }
@@ -146,6 +153,14 @@ function App() {
         .text-brand { color: var(--brand-color) !important; }
         .border-brand { border-color: var(--brand-color) !important; }
       `}</style>
+
+      {/* API Key Uyarısı - Sadece site sahibi görsün diye geçici bir uyarı */}
+      {isKeyMissing && activePage === 'home' && (
+        <div className="fixed top-0 left-0 w-full bg-orange-600 text-white py-2 px-4 z-[100] text-center text-[10px] font-bold flex items-center justify-center gap-2">
+          <AlertTriangle size={12} /> 
+          SİTE SAHİBİNE NOT: Gemini API_KEY henüz girilmemiş. Netlify panelinden 'API_KEY' değişkenini ekleyip 'Clear Cache & Deploy' yapınız.
+        </div>
+      )}
 
       {activePage !== 'admin' && (
         <Navbar 
