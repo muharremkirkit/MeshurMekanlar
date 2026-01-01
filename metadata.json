@@ -1,0 +1,7 @@
+{
+  "name": "Meşhur Mekanlar - Geleneksel Lezzet Durağı",
+  "description": "Modern, şık ve iştah açıcı bir restoran deneyimi sunan, kebap ve Türk mutfağına odaklanan tek sayfa web uygulaması.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
