@@ -1,0 +1,68 @@
+
+/* Meşhur Mekanlar - Global Stiller */
+:root {
+  --brand-color: #e11d48;
+  --brand-font: 'Playfair Display', serif;
+}
+
+/* Özel Kaydırma Çubuğu (Scrollbar) */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f8fafc;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+  border: 2px solid #f8fafc;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--brand-color);
+}
+
+/* Global Yumuşak Geçişler */
+body {
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Giriş Animasyonları */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeInUp 0.8s ease-out forwards;
+}
+
+/* Seçim Rengi */
+::selection {
+  background-color: var(--brand-color);
+  color: white;
+}
+
+/* Tailwind ile uyumlu font zorlaması */
+.font-serif {
+  font-family: var(--brand-font) !important;
+}
+
+/* Kart Hover Efektleri */
+.hover-lift {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-8px);
+}
