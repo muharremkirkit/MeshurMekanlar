@@ -21,21 +21,28 @@
             background-image: radial-gradient(#e5e7eb 0.5px, transparent 0.5px);
             background-size: 20px 20px;
         }
+        :root {
+          --brand-color: #e11d48;
+        }
     </style>
-<script type="importmap">
+    <script type="importmap">
 {
   "imports": {
-    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react": "https://esm.sh/react@19.0.0",
+    "react-dom": "https://esm.sh/react-dom@19.0.0",
+    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
+    "lucide-react": "https://esm.sh/lucide-react@0.460.0",
+    "@google/genai": "https://esm.sh/@google/genai@1.3.0",
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.46.1",
     "react/": "https://esm.sh/react@^19.2.3/",
-    "react": "https://esm.sh/react@^19.2.3",
-    "@google/genai": "https://esm.sh/@google/genai@^1.34.0",
-    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2"
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/"
   }
 }
 </script>
 </head>
 <body class="bg-pattern text-slate-900">
     <div id="root"></div>
+    <!-- Ana giriş noktası burasıdır, silinmemelidir -->
+    <script type="module" src="index.tsx"></script>
 </body>
 </html>
