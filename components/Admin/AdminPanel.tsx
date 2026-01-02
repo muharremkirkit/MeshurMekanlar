@@ -105,7 +105,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
             {isCloudConnected ? (
               <div className="bg-white border-2 border-green-100 p-10 rounded-[48px] shadow-sm flex items-center justify-between gap-8">
                 <div className="flex items-center gap-6">
-                  <div className="w-20 h-20 bg-green-500 text-white rounded-[28px] flex items-center justify-center shrink-0 shadow-xl shadow-green-500/20"><CloudUpload size={40}/></div>
+                  <div className="w-20 h-20 bg-green-500 text-white rounded-[28px] flex items-center justify-center shrink-0 shadow-xl shadow-green-500/20"><UploadCloud size={40}/></div>
                   <div><h3 className="text-2xl font-bold text-slate-900 mb-2">Bulut Bağlantısı Hazır!</h3><p className="text-slate-500 text-sm">Verileri tek tıkla canlı veritabanına aktarabilirsiniz.</p></div>
                 </div>
                 <button disabled={isSyncing} onClick={handleSyncToCloud} className="bg-green-600 hover:bg-green-700 text-white px-10 py-5 rounded-2xl font-bold flex items-center gap-3 transition-all">
