@@ -1,4 +1,3 @@
-
 import { createClient } from '@supabase/supabase-js';
 
 const getSupabase = () => {
@@ -17,6 +16,7 @@ const getSupabase = () => {
   }
 };
 
+// supabase değişkenini dışarıya güvenli bir şekilde açıyoruz
 export const supabase = getSupabase();
 
 if (!supabase) {
