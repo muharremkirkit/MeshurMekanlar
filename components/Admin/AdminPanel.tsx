@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { 
   Utensils, Tags, Settings, Trash2, Edit, X, Image as ImageIcon,
   FileText, Users, Key, PlusCircle, Upload, LogOut, MessageSquare,
-  Star, Globe, Loader2, Database, Download, RefreshCw, AlertCircle, CloudUpload, Zap, CheckCircle2, Github, Info
+  Star, Globe, Loader2, Database, Download, RefreshCw, AlertCircle, UploadCloud, Zap, CheckCircle2, Github, Info
 } from 'lucide-react';
 import { MenuItem, CategoryItem, SiteSettings, AdminUser } from '../../types';
 import { dataService } from '../../services/dataService';
