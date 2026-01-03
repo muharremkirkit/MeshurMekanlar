@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Hero from './Hero';
-import { Award, ChevronRight, Star, Quote, ShieldCheck, Flame, Globe, ChevronLeft } from 'lucide-react';
+import { Award, ChevronRight, Star, Quote, ShieldCheck, Flame, Globe, ChevronLeft, Users } from 'lucide-react';
 import { MenuItem, SiteSettings } from '../types';
 
 interface HomeProps {
@@ -15,20 +15,30 @@ const Home: React.FC<HomeProps> = ({ onNavigate, menuItems, settings }) => {
   const visibleTestimonials = settings.testimonials.filter(t => t.isVisible);
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  // Group testimonials by 3 for desktop
+  // Group testimonials for slider
   const itemsPerView = 3;
   const slideCount = Math.ceil(visibleTestimonials.length / itemsPerView);
 
   useEffect(() => {
-    if (slideCount <= 1) return;
+    if (settings.testimonialLayout !== 'slider' || slideCount <= 1) return;
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slideCount);
     }, 6000);
     return () => clearInterval(timer);
-  }, [slideCount]);
+  }, [slideCount, settings.testimonialLayout]);
 
   const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % slideCount);
   const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + slideCount) % slideCount);
+
+  // Grid column class generator
+  const getGridColsClass = () => {
+    switch(settings.testimonialGridCols) {
+      case 1: return 'md:grid-cols-1 max-w-2xl mx-auto';
+      case 2: return 'md:grid-cols-2';
+      case 4: return 'md:grid-cols-2 lg:grid-cols-4';
+      default: return 'md:grid-cols-3'; // Default 3
+    }
+  };
 
   return (
     <div className="overflow-x-hidden">
@@ -112,7 +122,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate, menuItems, settings }) => {
         </div>
       </section>
 
-      {/* Müşteri Yorumları (3'erli Slide) */}
+      {/* Müşteri Yorumları */}
       {settings.testimonialsEnabled && visibleTestimonials.length > 0 && (
         <section className="py-24 bg-white relative">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -126,50 +136,77 @@ const Home: React.FC<HomeProps> = ({ onNavigate, menuItems, settings }) => {
               )}
             </div>
 
-            <div className="relative">
-              <div className="overflow-hidden px-4">
-                <div 
-                  className="flex transition-transform duration-1000 ease-in-out" 
-                  style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-                >
-                  {[...Array(slideCount)].map((_, slideIdx) => (
-                    <div key={slideIdx} className="w-full flex-shrink-0 grid grid-cols-1 md:grid-cols-3 gap-8">
-                      {visibleTestimonials.slice(slideIdx * itemsPerView, (slideIdx + 1) * itemsPerView).map((t) => (
-                        <div key={t.id} className="bg-slate-50 p-10 rounded-[48px] relative group hover:bg-brand transition-all duration-500 border border-slate-100 shadow-sm hover:shadow-2xl">
-                          <Quote className="text-brand/10 absolute top-8 right-8 group-hover:text-white/10 transition-colors" size={60} />
-                          <div className="flex gap-1 mb-6">
-                            {[...Array(t.rating)].map((_, i) => <Star key={i} size={16} className="fill-brand text-brand group-hover:fill-white group-hover:text-white" />)}
-                          </div>
-                          <p className="text-slate-600 text-lg mb-8 leading-relaxed italic group-hover:text-white transition-colors">"{t.comment}"</p>
-                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 bg-brand/10 rounded-full flex items-center justify-center font-bold text-brand group-hover:bg-white group-hover:text-brand">
-                              {t.source === 'google' ? <Globe size={20}/> : t.name.charAt(0)}
+            {/* Layout: Slider */}
+            {settings.testimonialLayout === 'slider' ? (
+              <div className="relative">
+                <div className="overflow-hidden px-4">
+                  <div 
+                    className="flex transition-transform duration-1000 ease-in-out" 
+                    style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+                  >
+                    {[...Array(slideCount)].map((_, slideIdx) => (
+                      <div key={slideIdx} className="w-full flex-shrink-0 grid grid-cols-1 md:grid-cols-3 gap-8">
+                        {visibleTestimonials.slice(slideIdx * itemsPerView, (slideIdx + 1) * itemsPerView).map((t) => (
+                          <div key={t.id} className="bg-slate-50 p-10 rounded-[48px] relative group hover:bg-brand transition-all duration-500 border border-slate-100 shadow-sm hover:shadow-2xl">
+                            <Quote className="text-brand/10 absolute top-8 right-8 group-hover:text-white/10 transition-colors" size={60} />
+                            <div className="flex gap-1 mb-6">
+                              {[...Array(t.rating)].map((_, i) => <Star key={i} size={16} className="fill-brand text-brand group-hover:fill-white group-hover:text-white" />)}
                             </div>
-                            <div>
-                              <h4 className="font-bold text-slate-900 group-hover:text-white">{t.name}</h4>
-                              <p className="text-xs text-slate-400 font-bold uppercase tracking-widest group-hover:text-white/60">
-                                {t.source === 'google' ? 'Google Yorum' : 'Mutlu Misafir'}
-                              </p>
+                            <p className="text-slate-600 text-lg mb-8 leading-relaxed italic group-hover:text-white transition-colors">"{t.comment}"</p>
+                            <div className="flex items-center gap-4">
+                              <div className="w-12 h-12 bg-brand/10 rounded-full flex items-center justify-center font-bold text-brand group-hover:bg-white group-hover:text-brand">
+                                {t.source === 'google' ? <Globe size={20}/> : t.name.charAt(0)}
+                              </div>
+                              <div>
+                                <h4 className="font-bold text-slate-900 group-hover:text-white">{t.name}</h4>
+                                <p className="text-xs text-slate-400 font-bold uppercase tracking-widest group-hover:text-white/60">
+                                  {t.source === 'google' ? 'Google Yorum' : 'Mutlu Misafir'}
+                                </p>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  ))}
+                        ))}
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              {slideCount > 1 && (
-                <>
-                  <button onClick={prevSlide} className="absolute -left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white shadow-xl rounded-full flex items-center justify-center text-slate-400 hover:text-brand transition-all z-10 border">
-                    <ChevronLeft size={24} />
-                  </button>
-                  <button onClick={nextSlide} className="absolute -right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white shadow-xl rounded-full flex items-center justify-center text-slate-400 hover:text-brand transition-all z-10 border">
-                    <ChevronRight size={24} />
-                  </button>
-                </>
-              )}
-            </div>
+                {slideCount > 1 && (
+                  <>
+                    <button onClick={prevSlide} className="absolute -left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white shadow-xl rounded-full flex items-center justify-center text-slate-400 hover:text-brand transition-all z-10 border">
+                      <ChevronLeft size={24} />
+                    </button>
+                    <button onClick={nextSlide} className="absolute -right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white shadow-xl rounded-full flex items-center justify-center text-slate-400 hover:text-brand transition-all z-10 border">
+                      <ChevronRight size={24} />
+                    </button>
+                  </>
+                )}
+              </div>
+            ) : (
+              /* Layout: Grid */
+              <div className={`grid grid-cols-1 ${getGridColsClass()} gap-8`}>
+                {visibleTestimonials.map((t) => (
+                  <div key={t.id} className="bg-slate-50 p-8 rounded-[40px] border border-slate-100 shadow-sm hover:shadow-xl transition-all">
+                     <div className="flex justify-between items-start mb-4">
+                       <div className="flex gap-1">
+                          {[...Array(t.rating)].map((_, i) => <Star key={i} size={14} className="fill-brand text-brand" />)}
+                       </div>
+                       <Quote size={24} className="text-slate-200" />
+                     </div>
+                     <p className="text-slate-600 mb-6 italic">"{t.comment}"</p>
+                     <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-white border border-slate-100 rounded-full flex items-center justify-center text-slate-500 text-sm font-bold shadow-sm">
+                           {t.source === 'google' ? <Globe size={16} className="text-blue-500"/> : <Users size={16}/>}
+                        </div>
+                        <div>
+                           <h4 className="font-bold text-slate-900 text-sm">{t.name}</h4>
+                           <span className="text-[10px] uppercase font-black text-slate-400">{t.source === 'google' ? 'Google' : 'Yerel'}</span>
+                        </div>
+                     </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </section>
       )}
