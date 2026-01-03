@@ -95,4 +95,6 @@ export interface SiteSettings {
   // Testimonial Settings
   testimonialsEnabled: boolean;
   testimonials: Testimonial[];
+  testimonialLayout: 'slider' | 'grid'; // Yeni özellik
+  testimonialGridCols: number; // Yeni özellik (1-4 arası)
 }
