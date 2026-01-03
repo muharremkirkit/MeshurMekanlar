@@ -63,7 +63,9 @@ function App() {
       'https://images.unsplash.com/photo-1541518763669-279998844e83?auto=format&fit=crop&q=80&w=800'
     ],
     testimonialsEnabled: true,
-    testimonials: []
+    testimonials: [],
+    testimonialLayout: 'slider', // Varsayılan slider
+    testimonialGridCols: 3, // Varsayılan 3'lü
   });
 
   useEffect(() => {
