@@ -1,11 +1,6 @@
 
 import { MenuItem, CategoryItem, SiteSettings, AdminUser } from '../types';
-
-/**
- * Bu servis, uygulamanın veri kaynağını yönetir.
- * Geliştirme aşamasında localStorage kullanır, 
- * Çevre değişkenleri tanımlandığında Supabase'e geçiş yapar.
- */
+import { supabase } from './supabaseClient';
 
 const STORAGE_KEYS = {
   MENU: 'mm_menu',
@@ -17,45 +12,95 @@ const STORAGE_KEYS = {
 export const dataService = {
   // --- AYARLAR ---
   async getSettings(): Promise<SiteSettings | null> {
-    const data = localStorage.getItem(STORAGE_KEYS.SETTINGS);
-    return data ? JSON.parse(data) : null;
+    if (supabase) {
+      const { data, error } = await supabase.from('settings').select('*').single();
+      if (!error && data) return data;
+    }
+    const localData = localStorage.getItem(STORAGE_KEYS.SETTINGS);
+    return localData ? JSON.parse(localData) : null;
   },
+
   async saveSettings(settings: SiteSettings): Promise<void> {
     localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
-    // Buraya Supabase update kodu gelecek: await supabase.from('settings').update(settings).eq('id', 1);
+    if (supabase) {
+      await supabase.from('settings').upsert({ id: 1, ...settings });
+    }
   },
 
   // --- MENÜ ÖĞELERİ ---
   async getMenuItems(): Promise<MenuItem[]> {
-    const data = localStorage.getItem(STORAGE_KEYS.MENU);
-    return data ? JSON.parse(data) : [];
+    if (supabase) {
+      const { data, error } = await supabase.from('menu_items').select('*').order('created_at', { ascending: false });
+      if (!error && data) return data;
+    }
+    const localData = localStorage.getItem(STORAGE_KEYS.MENU);
+    return localData ? JSON.parse(localData) : [];
   },
+
   async saveMenuItems(items: MenuItem[]): Promise<void> {
     localStorage.setItem(STORAGE_KEYS.MENU, JSON.stringify(items));
-    // Supabase: await supabase.from('menu').upsert(items);
+    if (supabase) {
+      // Toplu güncelleme için önce mevcutları temizleyip sonra ekleme veya upsert mantığı kullanılabilir
+      // SaaS yapısında her restoranın kendi ID'si olur, biz şimdilik basit tutuyoruz
+      await supabase.from('menu_items').upsert(items);
+    }
   },
 
   // --- KATEGORİLER ---
   async getCategories(): Promise<CategoryItem[]> {
-    const data = localStorage.getItem(STORAGE_KEYS.CATEGORIES);
-    return data ? JSON.parse(data) : [];
+    if (supabase) {
+      const { data, error } = await supabase.from('categories').select('*').order('name');
+      if (!error && data) return data;
+    }
+    const localData = localStorage.getItem(STORAGE_KEYS.CATEGORIES);
+    return localData ? JSON.parse(localData) : [];
   },
+
   async saveCategories(categories: CategoryItem[]): Promise<void> {
     localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(categories));
+    if (supabase) {
+      await supabase.from('categories').upsert(categories);
+    }
   },
 
   // --- YÖNETİCİLER ---
   async getAdmins(): Promise<AdminUser[]> {
-    const data = localStorage.getItem(STORAGE_KEYS.ADMINS);
-    return data ? JSON.parse(data) : [];
+    if (supabase) {
+      const { data, error } = await supabase.from('admins').select('*');
+      if (!error && data) return data;
+    }
+    const localData = localStorage.getItem(STORAGE_KEYS.ADMINS);
+    return localData ? JSON.parse(localData) : [];
   },
+
   async saveAdmins(admins: AdminUser[]): Promise<void> {
     localStorage.setItem(STORAGE_KEYS.ADMINS, JSON.stringify(admins));
+    if (supabase) {
+      await supabase.from('admins').upsert(admins);
+    }
   },
 
   // --- GÖRSEL YÜKLEME ---
   async uploadImage(file: File): Promise<string> {
-    // Şimdilik base64 dönüyoruz, SaaS versiyonunda Supabase Bucket URL dönecek
+    if (supabase) {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `uploads/${fileName}`;
+
+      const { data, error } = await supabase.storage
+        .from('restaurant_images')
+        .upload(filePath, file);
+
+      if (error) throw error;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('restaurant_images')
+        .getPublicUrl(filePath);
+      
+      return publicUrl;
+    }
+
+    // Supabase yoksa base64 devam
     return new Promise((resolve) => {
       const reader = new FileReader();
       reader.onloadend = () => resolve(reader.result as string);
